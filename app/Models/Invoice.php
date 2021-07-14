@@ -9,5 +9,12 @@ class Invoice extends Model
 {
     use HasFactory;
 
-    
+    public function order()
+    {
+        return $this->hasOne(Order::class);
+    }
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
 }
