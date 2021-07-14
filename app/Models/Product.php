@@ -8,4 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+
+    // DB Relations
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function facilities()
+    {
+        return $this->belongsToMany(Facility::class, 'room_facilities');
+    }
+    public function utilities()
+    {
+        return $this->belongsToMany(Utility::class, 'room_utilities');
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'item_orders');
+    }
 }
