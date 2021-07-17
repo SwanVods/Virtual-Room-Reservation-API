@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,4 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/room-detail/{id}', [ProductController::class, 'index']);
+Route::get('/rooms', [ProductController::class, 'index']);
+Route::post('/rooms/create', [ProductController::class, 'create']);
+
+Route::get('/room-details/{id}', [ProductController::class, 'details']);
