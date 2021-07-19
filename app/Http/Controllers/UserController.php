@@ -6,9 +6,45 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Validator;
+use App\Http\Controllers\BaseController as BaseController;
 
 class UserController extends Controller
 {
+    public function sendResponse($result, $message)
+    {
+    	$response = [
+            'success' => true,
+            'data'    => $result,
+            'message' => $message,
+        ];
+
+
+        return response()->json($response, 200);
+    }
+
+
+    /**
+     * return error response.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sendError($error, $errorMessages = [], $code = 404)
+    {
+    	$response = [
+            'success' => false,
+            'message' => $error,
+        ];
+
+
+        if(!empty($errorMessages)){
+            $response['data'] = $errorMessages;
+        }
+
+
+        return response()->json($response, $code);
+    }
+
+
     public function registration(Request $request)
     {
         // dd($request->phone);
@@ -20,7 +56,7 @@ class UserController extends Controller
             'phone'=>'required',
         ]);
         if($validation->fails()){
-            return response()->json($validation->errors(),202);
+            return $this->sendError('Validation Error.', $validator->errors());
         }
         $alldata = $request->all();
         // dd($alldata);
@@ -28,12 +64,12 @@ class UserController extends Controller
         $user = User::create($alldata);
         // dd($user);
         
-        $resArr = [];
+        $success = [];
         
-        $resArr['token']=$user->createToken('api-application')->accessToken;
-        $resArr['name']=$user->name;
+        $success['token']=$user->createToken('nApp')->accessToken;
+        $success['name']=$user->name;
 
-        return response()->json($resArr,200);
+        return $this->sendResponse($success, 'User register successfully.');
     }
     public function login(Request $request)
     {
@@ -42,12 +78,12 @@ class UserController extends Controller
             'password' => $request->password
         ])){
             $user =Auth::user();
-            $resArr = [];
-            $resArr['token']=$user->createToken('api-application')->accessToken;
-            $resArr['name']=$user->name;
-            return response()->json($resArr,200);
+            $success = [];
+            $success['token']=$user->createToken('api-application')->accessToken;
+            $success['name']=$user->name;
+            return $this->sendResponse($success, 'User login successfully.');
         }else{
-            return response()->json(['error'=>'Unauthorized Access'],203);
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
     }
 }

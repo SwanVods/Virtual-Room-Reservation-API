@@ -17,7 +17,7 @@ class CreateReviewsTable extends Migration
             $table->id();
             $table->string('title', 100);
             $table->integer('score');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('product_id')->constrained('products');
             $table->timestamps();
