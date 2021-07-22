@@ -11,53 +11,68 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-
     /**
      * Index Function
      * 
      * API Endpoint : 
      * https://virtual.co.id/api/rooms
      *
-     * @return Response id, name, slug
+     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $data = Product::select(['id', 'name', 'slug'])->orderBy('created_at', 'DESC')->get();
+        $data = Product::select(['id', 'name', 'slug'])->with('images')->orderBy('created_at', 'DESC')->get();
 
         $res = [
             'message' => 'List of products order by time added',
             'data' => $data
         ];
-        return response($res)->header('Content-Type', 'application/json');
+        return response()->json($res);
     }
 
     /**
-     * Get detailed room attribute
+     * Get detailed room attributes
      * 
      * API Endpoint : 
      * https://virtual.co.id/api/room-details?id={id}
      * 
-     * @return Response all data attributes
+     * @return \Illuminate\Http\Response All data attributes
      */
-    public function details(Request $req)
+    public function show(Request $req)
     {
-        $data = Product::find($req->id);
+        $validator = Validator::make($req->all(), [
+            'id' => ['integer']
+        ]);
 
-        $res = [
-            'data' => $data
-        ];
-        return response($res)->header('Content-Type', 'application/json');    
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        try {
+            $data = Product::where('id', $req->room)
+                            ->orWhere('slug', $req->room)
+                            ->with('images')->get();
+            $res = [
+                'data' => $data
+            ];
+            return response()->json($res, 200);    
+        } catch (QueryException $th) {
+            return response()->json([
+                'data' => $th->errorInfo
+            ]);
+        }
+        
     }
 
     /**
      * Store created room attribute
      * 
      * API Endpoint : 
-     * https://virtual.co.id/api/create?{name},{category_id}
+     * https://virtual.co.id/api/create?name={name}&category={category_id}
      * 
-     * @return Response boolean
+     * @return \Illuminate\Http\Response boolean
      */
-    public function create(Request $req)
+    public function store(Request $req)
     {
         $validator = Validator::make($req->all(), [
             'name' => ['required'], 
@@ -89,33 +104,87 @@ class ProductController extends Controller
             ];
 
             return response()->json($res, Response::HTTP_CREATED);
+
         } catch (QueryException $e) {
+
             return response()->json([
-                'data' => 'Failed ' . $e->errorInfo
+                'data' => $e->errorInfo
             ]);
         }
+    }
+    /**
+     * Store created room attribute
+     * 
+     * API Endpoint : 
+     * https://virtual.co.id/api/create?name={name}&category={category_id}
+     * 
+     * @return \Illuminate\Http\Response boolean
+     */
+    public function update(Request $req, $id)
+    {
+        $validator = Validator::make($req->all(), [
+            'room' => ['required', 'integer'],
+            'name' => ['required'], 
+            'capacity' => ['required'], 
+            'size' => ['required'], 
+        ]);
 
-
-        if ($product) {
-            return response('success', 200);
-        } else {
-            return response('failed');
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        
+
+        try {
+            $product = Product::where('id', $id)->get();
+            $product->update([
+                'name' => $req->name,
+                'slug' => Str::slug($req->name),
+                'category_id' => $req->category_id,
+                'price' => $req->price,
+                'description' => $req->description,
+                'capacity' => $req->capacity,
+                'size' => $req->size,
+                'access_route' => $req->access_route,
+                'address' => $req->address,
+            ]);
+
+            $res = [
+                'message' => 'Product update successful',
+                'data' => $product
+            ];
+
+            return response()->json($res, Response::HTTP_OK);
+
+        } catch (QueryException $e) {
+
+            return response()->json([
+                'data' => $e->errorInfo
+            ]);
+        }
     }
 
     /**
      * Delete requested id model
      * 
      * API Endpoint : 
-     * https://virtual.co.id/api/room-details?id={id}
+     * https://virtual.co.id/api/delete?id={id}
      * 
-     * @return Response
+     * @return \Illuminate\Http\Response
      */
-    public function delete(Request $req)
+    public function destroy(Request $req)
     {
-        Product::destroy($req->id);
-        
-        return response('success');
+        try {
+            $data = Product::destroy($req->room);
+            $res = [
+                'message' => 'success',
+                'data' => $data
+            ];
+
+            return response()->json($res, Response::HTTP_OK);
+
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Failed ' . $e->errorInfo
+            ]);
+        }
     }
 }
