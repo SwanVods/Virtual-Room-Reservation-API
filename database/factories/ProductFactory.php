@@ -27,7 +27,7 @@ class ProductFactory extends Factory
         return [
             'name' => $name,
             'slug' => strtolower(str_replace([' ', ','], '-', $name)),
-            'category_id' => Category::factory(1)->create()->first(),
+            'category_id' => Category::factory()->count(1)->create()->first(),
             'user_id' => User::factory(1)->create()->first(),
             'description' => $this->faker->text(100),
             'price' => $this->faker->randomDigit(),

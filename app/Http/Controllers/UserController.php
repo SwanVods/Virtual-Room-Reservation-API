@@ -67,9 +67,9 @@ class UserController extends Controller
         $success = [];
         
         $success['token']=$user->createToken('nApp')->accessToken;
-        $success['name']=$user->name;
-
-        return $this->sendResponse($success, 'User register successfully.');
+        // $success['name']=$user->name;
+        return response()->json(['token' => $success],200);
+        // return $this->sendResponse($success, 'User register successfully.');
     }
     public function login(Request $request)
     {
@@ -80,10 +80,17 @@ class UserController extends Controller
             $user =Auth::user();
             $success = [];
             $success['token']=$user->createToken('api-application')->accessToken;
-            $success['name']=$user->name;
-            return $this->sendResponse($success, 'User login successfully.');
+            // $success['name']=$user->name;
+            // return $this->sendResponse($success, 'User login successfully.');
+            return response()->json(['token' => $success],200);
         }else{
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         }
+    }
+    public function details()
+    {
+        $success = auth()->user();
+        return $this->sendResponse($success, 'User login successfully.');
+        // return response()->json(['user'=> auth()->user()],200);
     }
 }
