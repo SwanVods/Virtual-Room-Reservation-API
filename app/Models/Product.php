@@ -9,10 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-    ];
+    protected $hidden = [];
 
     protected $guarded = [];
 
@@ -38,6 +35,16 @@ class Product extends Model
 
     public function images()
     {
-        return $this->hasMany(ProductImages::class);
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($user) { 
+            $user->images()->delete();
+            // do the rest of the cleanup...
+        });
     }
 }

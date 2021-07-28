@@ -23,5 +23,7 @@ use App\Models\Product;
 
 
 Route::resource('rooms', ProductController::class)->except(['create', 'edit']);
+Route::post('/rooms/image/', [ProductController::class, 'addImages']);
+Route::delete('/rooms/image/{id}', [ProductController::class, 'destroyImages']);
 Route::get('/rooms/search', [SearchController::class, 'roomSearch']);
 Route::get('/articles/search', [SearchController::class, 'articleSearch']);

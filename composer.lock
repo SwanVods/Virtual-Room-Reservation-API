@@ -4,8 +4,71 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7759431e303e2d722a264a8a991a9e84",
+    "content-hash": "bf90a6514904b6b87ea9857c84357d3f",
     "packages": [
+        {
+            "name": "andreaselia/laravel-api-to-postman",
+            "version": "v1.7.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AndreasElia/laravel-api-to-postman.git",
+                "reference": "a19995465ee13d47bdc8b8167a62264dac760b6c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AndreasElia/laravel-api-to-postman/zipball/a19995465ee13d47bdc8b8167a62264dac760b6c",
+                "reference": "a19995465ee13d47bdc8b8167a62264dac760b6c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "illuminate/config": "^6.0|^7.0|^8.0",
+                "illuminate/console": "^6.0|^7.0|^8.0",
+                "illuminate/contracts": "^6.0|^7.0|^8.0",
+                "illuminate/routing": "^6.0|^7.0|^8.0",
+                "illuminate/support": "^6.0|^7.0|^8.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.12"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AndreasElia\\PostmanGenerator\\PostmanGeneratorServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AndreasElia\\PostmanGenerator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Elia",
+                    "email": "andreaselia@live.co.uk"
+                }
+            ],
+            "description": "Generate a Postman collection automatically from your Laravel API",
+            "keywords": [
+                "Postman",
+                "api",
+                "collection",
+                "generate",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/AndreasElia/laravel-api-to-postman/issues",
+                "source": "https://github.com/AndreasElia/laravel-api-to-postman/tree/v1.7.4"
+            },
+            "time": "2021-07-14T19:37:32+00:00"
+        },
         {
             "name": "asm89/stack-cors",
             "version": "v2.0.3",
@@ -7399,5 +7462,5 @@
         "php": "^7.3|^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }
