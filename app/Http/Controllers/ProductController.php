@@ -21,12 +21,13 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = auth()->user()->products;
+        $user = auth()->user();
         $data = Product::select(['id', 'name', 'slug'])->with('images')->orderBy('created_at', 'DESC')->get();
 
         $res = [
             'message' => 'List of products order by time added',
-            'data' => $data
+            'data' => $data,
+            'user' => $user
         ];
         return response()->json($res);
     }

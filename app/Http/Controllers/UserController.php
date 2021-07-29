@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use Validator;
-use App\Http\Controllers\BaseController as BaseController;
-
+use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
     public function sendResponse($result, $message)
@@ -56,35 +54,36 @@ class UserController extends Controller
             'phone'=>'required',
         ]);
         if($validation->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
+            return $this->sendError('Validation Error.', $validation->errors());
         }
-        $alldata = $request->all();
+        $allData = $request->all();
         // dd($alldata);
-        $alldata['password'] = bcrypt($alldata['password']);
-        $user = User::create($alldata);
+        $allData['password'] = bcrypt($allData['password']);
+        $user = User::create($allData);
+        $user->assignRole('seller');
         // dd($user);
-        
+
         $success = [];
-        
-        $success['token']=$user->createToken('nApp')->accessToken;
+
+        $success['token']=$user->createToken('api-application')->accessToken;
         // $success['name']=$user->name;
-        return response()->json(['token' => $success],200);
-        // return $this->sendResponse($success, 'User register successfully.');
+        // return response()->json(['token' => $success],200);
+        return $this->sendResponse($success, 'User register successfully.');
     }
     public function login(Request $request)
     {
         if(Auth::attempt([
-            'email' => $request->email, 
+            'email' => $request->email,
             'password' => $request->password
         ])){
             $user =Auth::user();
-            $success = [];
+            // $success = [];
             $success['token']=$user->createToken('api-application')->accessToken;
             // $success['name']=$user->name;
-            // return $this->sendResponse($success, 'User login successfully.');
-            return response()->json(['token' => $success],200);
+            return $this->sendResponse($success, 'User login successfully.');
+            // return response()->json(['token' => $success],200);
         }else{
-            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+            return $this->sendError('Unauthorized.', ['error'=>'Unauthorized']);
         }
     }
     public function details()
