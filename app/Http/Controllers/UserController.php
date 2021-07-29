@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+
 class UserController extends Controller
 {
     public function sendResponse($result, $message)
@@ -19,13 +20,7 @@ class UserController extends Controller
 
         return response()->json($response, 200);
     }
-
-
-    /**
-     * return error response.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function sendError($error, $errorMessages = [], $code = 404)
     {
     	$response = [
@@ -45,7 +40,6 @@ class UserController extends Controller
 
     public function registration(Request $request)
     {
-        // dd($request->phone);
         $validation = Validator::make($request->all(),[
             'name'=>'required',
             'email'=>'required|email',
@@ -57,17 +51,10 @@ class UserController extends Controller
             return $this->sendError('Validation Error.', $validation->errors());
         }
         $allData = $request->all();
-        // dd($alldata);
         $allData['password'] = bcrypt($allData['password']);
         $user = User::create($allData);
-        $user->assignRole('seller');
-        // dd($user);
-
-        $success = [];
-
+        $user->assignRole('user');
         $success['token']=$user->createToken('api-application')->accessToken;
-        // $success['name']=$user->name;
-        // return response()->json(['token' => $success],200);
         return $this->sendResponse($success, 'User register successfully.');
     }
     public function login(Request $request)
@@ -77,19 +64,30 @@ class UserController extends Controller
             'password' => $request->password
         ])){
             $user =Auth::user();
-            // $success = [];
             $success['token']=$user->createToken('api-application')->accessToken;
-            // $success['name']=$user->name;
             return $this->sendResponse($success, 'User login successfully.');
-            // return response()->json(['token' => $success],200);
         }else{
             return $this->sendError('Unauthorized.', ['error'=>'Unauthorized']);
         }
     }
+
+    public function logoutApi()
+{ 
+    // dd(Auth::check());
+    if (Auth::check()) {
+       $success = Auth::user()->AauthAcessToken()->delete();
+       dd($success);
+       $res = [
+        'message' => 'Logout succesfully',
+        'data' => $success,
+        // 'user' => $user
+    ];
+       return response()->json($res);
+    }
+}
     public function details()
     {
         $success = auth()->user();
         return $this->sendResponse($success, 'User login successfully.');
-        // return response()->json(['user'=> auth()->user()],200);
     }
 }
