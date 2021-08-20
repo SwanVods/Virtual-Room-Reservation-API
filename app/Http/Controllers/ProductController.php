@@ -79,7 +79,7 @@ class ProductController extends Controller
             'price' => ['required'],
             'capacity' => ['required'], 
             'size' => ['required'], 
-            'image' => ['max:1024']
+            'image' => 'required|image',
         ]);
 
         if ($validator->fails()) {
@@ -131,7 +131,7 @@ class ProductController extends Controller
      * Update room attribute
      * 
      * API Endpoint : 
-     * https://virtual.co.id/api/rooms/{room}/update
+     * https://virtual.co.id/api/rooms/{room}
      * 
      * @return \Illuminate\Http\Response boolean
      */
@@ -183,7 +183,7 @@ class ProductController extends Controller
      * Delete requested id model
      * 
      * API Endpoint : 
-     * https://virtual.co.id/api/delete/{id}
+     * https://virtual.co.id/api/rooms/{id}
      * 
      * @return \Illuminate\Http\Response
      */
