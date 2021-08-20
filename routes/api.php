@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
@@ -34,3 +35,16 @@ Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 
 Route::get('/rooms/search', [SearchController::class, 'roomSearch']);
 Route::get('/articles/search', [SearchController::class, 'articleSearch']);
+
+Route::post('/register', [UserController::class, 'registration']);
+Route::post('/login', [UserController::class, 'login'])->name('login');
+Route::get('/login', [UserController::class, 'login'])->name('login');
+
+Route::middleware('auth:api')->group( function () {
+    Route::get('user',[UserController::class,'details']);
+    Route::post('/rooms',[ProductController::class,'store'])->name('rooms.store');
+    Route::put('/rooms',[ProductController::class,'update'])->name('rooms.update');
+    Route::patch('/rooms',[ProductController::class,'update'])->name('rooms.update');
+    Route::delete('/rooms/{room}',[ProductController::class,'delete'])->name('rooms.delete');
+    Route::post('logout',[UserController::class,'logoutApi']);
+});

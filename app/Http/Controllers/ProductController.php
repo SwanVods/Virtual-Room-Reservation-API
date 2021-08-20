@@ -24,14 +24,24 @@ class ProductController extends Controller
      */
     public function index()
     {
+<<<<<<< HEAD
         $data = Product::select(['id', 'name', 'slug'])
             ->with('images')
             ->orderBy('created_at', 'DESC')
             ->paginate(15);
+=======
+        // $user = auth()->user();
+        $data = Product::select(['id', 'name', 'slug'])
+            ->with('images')
+            // ->with($user)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+>>>>>>> b6a5a33ff48f088c504d4772e9a69b9fa7a3aeaa
 
         $res = [
             'message' => 'List of products order by time added',
-            'data' => $data
+            'data' => $data,
+            // 'user' => $user
         ];
         return response()->json($res);
     }

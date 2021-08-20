@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class Product extends Model
 {
     use HasFactory;
@@ -46,5 +47,9 @@ class Product extends Model
             $user->images()->delete();
             // do the rest of the cleanup...
         });
+    }
+    public function users()
+    {
+        return $this->hasOne(User::class);
     }
 }
