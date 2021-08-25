@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreReviewPostRequest;
+use App\Models\Product;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
@@ -17,7 +20,12 @@ class ReviewController extends Controller
      */
     public function index()
     {
-        //
+        $reviews = Review::where('user_id', Auth::user())->get();
+        $res = [
+            'data' => $reviews
+        ];
+
+        return response()->json($res);
     }
 
     /**
@@ -36,18 +44,16 @@ class ReviewController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreReviewPostRequest $request)
     {
-        $review = Review::create([
-            'title' => $request->title,
-            'score' => $request->score,
-            'description' => $request->description,
+        $validated = $request->validated();
+        $review = Review::create(array_merge($validated, [
             'user_id' => $request->user_id,
-            'product_id' => $request->title,
-        ]);
+            'product_id' => $request->product_id,
+        ]));
 
         $res = [
-            'message' => 'Review successfully created',
+            'success' => true,
             'data' => $review
         ];
 
@@ -90,9 +96,9 @@ class ReviewController extends Controller
             $review->score = $request->score;
             $review->description = $request->description;
             $review->save();
-            return response()->json(['message' => 'review succesfully updated']);
+            return response()->json(['success' => true]);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Review not found'], 404);
+            return response()->json(['success' => false], 404);
         }
     }
 

@@ -6,7 +6,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
-use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,32 +18,38 @@ use App\Models\Product;
 |
 */
 
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+# Auth
+Route::post('/register', [UserController::class, 'registration']);
+Route::post('/login', [UserController::class, 'login'])->name('login');
+Route::get('/login', function(){return response()->json(['message' => 'Unauthorized'], 401);});
 
-
-Route::resource('rooms', ProductController::class)->except(['create', 'edit']);
-
+# Rooms Image
 Route::post('/rooms/image/', [ProductController::class, 'addImages']);
 Route::delete('/rooms/image/{id}', [ProductController::class, 'destroyImages']);
 
+# Display Reviews
 Route::get('/reviews', [ReviewController::class, 'index']);
-Route::post('/reviews', [ReviewController::class, 'store']);
-Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 
+# Searches
 Route::get('/rooms/search', [SearchController::class, 'roomSearch']);
 Route::get('/articles/search', [SearchController::class, 'articleSearch']);
 
-Route::post('/register', [UserController::class, 'registration']);
-Route::post('/login', [UserController::class, 'login'])->name('login');
-Route::get('/login', [UserController::class, 'login'])->name('login');
+# User Details
+Route::get('/users/{id}', [UserController::class, 'show'])->name('user.show');
+
+# Display Rooms
+Route::get('/rooms', [ProductController::class, 'index'])->name('rooms.index');
+Route::get('/rooms/{id}', [ProductController::class, 'show'])->name('rooms.show');
 
 Route::middleware('auth:api')->group( function () {
-    Route::get('user',[UserController::class,'details']);
+    Route::get('/users',[UserController::class,'details']);
+    Route::post('/logout', [UserController::class, 'logout'])->middleware('auth:api');
+
     Route::post('/rooms',[ProductController::class,'store'])->name('rooms.store');
-    Route::put('/rooms',[ProductController::class,'update'])->name('rooms.update');
-    Route::patch('/rooms',[ProductController::class,'update'])->name('rooms.update');
-    Route::delete('/rooms/{room}',[ProductController::class,'delete'])->name('rooms.delete');
-    Route::post('logout',[UserController::class,'logoutApi']);
+    Route::put('/rooms/{id}',[ProductController::class,'update'])->name('rooms.update');
+    Route::patch('/rooms/{id}',[ProductController::class,'update']);
+    Route::delete('/rooms/{room}',[ProductController::class,'destroy'])->name('rooms.delete');
+
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{id}', [ReviewController::class, 'update']);
 });

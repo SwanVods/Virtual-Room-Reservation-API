@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRegisterRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -16,7 +18,6 @@ class UserController extends Controller
             'data'    => $result,
             'message' => $message,
         ];
-
 
         return response()->json($response, 200);
     }
@@ -37,57 +38,61 @@ class UserController extends Controller
         return response()->json($response, $code);
     }
 
-
-    public function registration(Request $request)
+    public function registration(StoreRegisterRequest $request)
     {
-        $validation = Validator::make($request->all(),[
-            'name'=>'required',
-            'email'=>'required|email',
-            'password'=>'required',
-            'c_password'=>'required|same:password',
-            'phone'=>'required',
-        ]);
-        if($validation->fails()){
-            return $this->sendError('Validation Error.', $validation->errors());
+        $validated = $request->validated();
+        $validated['password'] = bcrypt($validated['password']);
+
+        try {
+            $user = User::create($validated);
+            $user->assignRole('user');
+            $success['token'] = $user->createToken('api-application')->accessToken;
+            return $this->sendResponse($success, 'User register successfully.');
+        } catch (\Throwable $th) {
+            return $this->sendError($th->getMessage(), [], Response::HTTP_NOT_ACCEPTABLE);
         }
-        $allData = $request->all();
-        $allData['password'] = bcrypt($allData['password']);
-        $user = User::create($allData);
-        $user->assignRole('user');
-        $success['token']=$user->createToken('api-application')->accessToken;
-        return $this->sendResponse($success, 'User register successfully.');
+
+ 
     }
+
     public function login(Request $request)
     {
-        if(Auth::attempt([
+        $logged_in = Auth::attempt([
             'email' => $request->email,
             'password' => $request->password
-        ])){
-            $user =Auth::user();
-            $success['token']=$user->createToken('api-application')->accessToken;
+        ]); 
+        
+        if($logged_in) {
+            $user = Auth::user();
+            // @ts-ignore
+            $success['token'] = $user->createToken('api-application')->accessToken;
             return $this->sendResponse($success, 'User login successfully.');
-        }else{
-            return $this->sendError('Unauthorized.', ['error'=>'Unauthorized']);
+        } else {
+            return $this->sendError('unable to authenticate', [], Response::HTTP_UNAUTHORIZED);
         }
     }
 
-    public function logoutApi()
-{ 
-    // dd(Auth::check());
-    if (Auth::check()) {
-       $success = Auth::user()->AauthAcessToken()->delete();
-       dd($success);
-       $res = [
-        'message' => 'Logout succesfully',
-        'data' => $success,
-        // 'user' => $user
-    ];
-       return response()->json($res);
+    public function logout()
+    { 
+        $check = Auth::check();
+        if ($check) {
+            Auth::user()->token()->revoke();
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false], 401);
     }
-}
+
     public function details()
     {
-        $success = auth()->user();
-        return $this->sendResponse($success, 'User login successfully.');
+        $user = auth()->user();
+        return response()->json($user);
+    }
+
+    public function show($id)
+    {
+        $res = [
+            'data' => User::find($id)
+        ];
+        return response()->json($res, 200);
     }
 }

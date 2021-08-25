@@ -22,26 +22,17 @@ class ProductController extends Controller
      *
      * @return response list of rooms
      */
-    public function index()
+    public function index(Request $r)
     {
-<<<<<<< HEAD
         $data = Product::select(['id', 'name', 'slug'])
             ->with('images')
-            ->orderBy('created_at', 'DESC')
-            ->paginate(15);
-=======
-        // $user = auth()->user();
-        $data = Product::select(['id', 'name', 'slug'])
-            ->with('images')
-            // ->with($user)
             ->orderBy('created_at', 'DESC')
             ->get();
->>>>>>> b6a5a33ff48f088c504d4772e9a69b9fa7a3aeaa
 
         $res = [
             'message' => 'List of products order by time added',
             'data' => $data,
-            // 'user' => $user
+            'user' => $r->user()
         ];
         return response()->json($res);
     }
@@ -58,7 +49,9 @@ class ProductController extends Controller
     {
         $data = Product::where('id', $req->room)
                         ->orWhere('slug', $req->room)
-                        ->with('images')->first();
+                        ->with('images')
+                        ->with('reviews')
+                        ->first();
                        
         if ($data == null) { // if data empty then send 404
             return response()->json([
@@ -89,7 +82,7 @@ class ProductController extends Controller
             'price' => ['required'],
             'capacity' => ['required'], 
             'size' => ['required'], 
-            'image' => 'required|image',
+            'image' => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -109,6 +102,7 @@ class ProductController extends Controller
                 'access_route' => $req->access_route,
                 'address' => $req->address,
             ]);           
+            
             if ($req->hasfile('image')) {
                 foreach ($req->file('image') as $image) {
                     $product->images()->create([
@@ -128,11 +122,7 @@ class ProductController extends Controller
 
         } catch (QueryException $e) {
             return response()->json([
-                'data' => [
-                    'code' => $e->errorInfo[0],
-                    'key' => $e->errorInfo[1],
-                    'message' => $e->errorInfo[2]
-                ]
+                'data' => $e->getMessage()
             ]);
         }
     }
