@@ -16,46 +16,37 @@ class SearchController extends Controller
      * Controller for search query
      * 
      * API Endpoint :
-     * https://virtual.co.id/api/rooms/search?location={location}&capacity={capacity}&type={type}&date={date}&time={time}&price={price}
+     * https://virtual.co.id/api/rooms/search
      * 
      * @return Response
      */
-    public function roomSearch(Request $req)
+    public function roomSearch(Request $r)
     {
-        $endpointParams['name'] = $req->name;
-        $endpointParams['capacity'] = $req->capacity;
-        $endpointParams['type'] = $req->type;
-        $endpointParams['date'] = $req->date;
-        $endpointParams['time'] = $req->time;
-        $endpointParams['price_max'] = $req->price_max;
-        $endpointParams['price_min'] = $req->price_min;
+        $data = Product::where(function($q) use($r){
+            if($r->query('name')) {
+                $q->orWhere('name', 'like', "%{$r->query('name')}%");
+            }
+            if($r->query('capacity')) {
+                $q->orWhere('capacity', '=', $r->query('capacity'));
+            }
+            if($r->query('price_min') and $r->query('price_max')) {
+                $q->orWhere('price', 'between', [$r->query('price_min'), $r->query('price_max')]);
+            }
+            if($r->query('type')) {
+                $q->orWhere('type', '=', $r->query('type'));
+            }
+            if($r->query('date')) {
+                $q->orWhere('date', '=', $r->query('date'));
+            }
+            if($r->query('time')) {
+                $q->orWhere('time', '=', $r->query('time'));
+            }
+        })->get();
 
-        $validator = Validator::make($endpointParams, [
-            'name' => ['required'],
-            'capacity' => ['required', 'integer'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        try {
-            $data = Product::where([
-                ['name', 'like', "%{$endpointParams['name']}%"],
-                ['type', '=', $endpointParams['type']],
-                ['price', 'between', [$endpointParams['price_min'], $endpointParams['price_max']]],
-                ['date', '=', $endpointParams['date']],
-                ['time', '=', $endpointParams['time']],
-            ])->get();
-
-            $res = [
-                'data' => $data,
-            ];
-            return response()->json($res, Response::HTTP_OK);
-
-        } catch (QueryException $e) {
-            return response()->json(['data' => $e->errorInfo]);
-        }
+        $res = [
+            'data' => $data,
+        ];
+        return response()->json($res, Response::HTTP_OK);
 
     }
 
@@ -63,7 +54,7 @@ class SearchController extends Controller
      * Article search query
      * 
      * API Endpoint :
-     * https://virtual.co.id/api/rooms/search?location={location}&capacity={capacity}&type={type}&date={date}&time={time}&price={price}
+     * https://virtual.co.id/api/articles/search?title={title}
      * 
      * @return Response
      */

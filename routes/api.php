@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\XenditController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\Xendit\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +30,7 @@ Route::post('/rooms/image/', [ProductController::class, 'addImages']);
 Route::delete('/rooms/image/{id}', [ProductController::class, 'destroyImages']);
 
 # Display Reviews
-Route::get('/reviews', [ReviewController::class, 'index']);
+Route::get('/reviews/{room-id}', [ReviewController::class, 'index']);
 
 # Searches
 Route::get('/rooms/search', [SearchController::class, 'roomSearch']);
@@ -52,4 +54,12 @@ Route::middleware('auth:api')->group( function () {
 
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+
+    Route::get('/payments/list', [XenditController::class, 'getVaList'])->name('payment.list');
+    Route::post('/payments/pay/va', [XenditController::class, 'payVa'])->name('payment.pay.va');
+    Route::post('/payments/pay/ewallet', [XenditController::class, 'payEwallet'])->name('payment.pay.ewallet');
+    Route::post('/payments/create-customer', [XenditController::class, 'create'])->name('payment.create');
+
+    Route::get('/invoice', [InvoiceController::class, 'getInvoice'])->name('invoice.show');
+    Route::post('/invoice', [InvoiceController::class, 'createInvoice'])->name('invoice.create');
 });

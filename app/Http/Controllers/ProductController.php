@@ -26,8 +26,8 @@ class ProductController extends Controller
     {
         $data = Product::select(['id', 'name', 'slug'])
             ->with('images')
-            ->orderBy('created_at', 'DESC')
-            ->get();
+            ->latest()
+            ->paginate(12);
 
         $res = [
             'message' => 'List of products order by time added',

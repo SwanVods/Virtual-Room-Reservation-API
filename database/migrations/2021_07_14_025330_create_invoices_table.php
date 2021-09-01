@@ -19,6 +19,7 @@ class CreateInvoicesTable extends Migration
             $table->uuid('uuid');
             $table->integer('amount');
             $table->timestamps();
+            # TODO : Add some column based on https://developers.xendit.co/api-reference/#invoice-callback
         });
     }
 
