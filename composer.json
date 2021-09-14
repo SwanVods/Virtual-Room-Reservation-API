@@ -6,11 +6,15 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "andreaselia/laravel-api-to-postman": "^1.7",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^7.0.1",
+        "guzzlehttp/guzzle": "^7.3",
         "laravel/framework": "^8.40",
-        "laravel/tinker": "^2.5"
+        "laravel/passport": "^10.1",
+        "laravel/tinker": "^2.5",
+        "spatie/laravel-permission": "^4.2",
+        "xendit/xendit-php": "^2.11"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
