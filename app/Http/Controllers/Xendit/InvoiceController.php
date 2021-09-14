@@ -18,9 +18,9 @@ class InvoiceController extends Controller
     {
         $params = [
             'external_id' => 'demo_147580196270',
-            'payer_email' => 'sample_email@xendit.co',
-            'description' => 'Trip to Bali',
-            'amount' => 32000
+            'payer_email' => $r->email,
+            'description' => $r->description,
+            'amount' => $r->amount
         ];
 
         $createInvoice = Invoice::create($params);
@@ -33,7 +33,7 @@ class InvoiceController extends Controller
         return response()->json(['data' => Invoice::retrieve($id)]);
     }
 
-    public function getAllInvoice(Request $r)
+    public function getAllInvoice()
     {
         return response()->json([
             'data' => Invoice::retrieveAll()
@@ -50,6 +50,11 @@ class InvoiceController extends Controller
     {
         $params = $r->all();
         # TODO : handle request params from https://developers.xendit.co/api-reference/#invoice-callback
+        if($params['payment_method'] == 'BANK_TRANSFER') {
+
+        } else if($params['payment_method'] == 'RETAIL_OUTLET') {
+            
+        }
 
     }
 }

@@ -18,9 +18,9 @@ class ReviewController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id)
+    public function index(Request $r)
     {
-        $reviews = Review::where('product_id', $id)->get();
+        $reviews = Review::where('user_id', $r->query('user'))->get();
         $res = [
             'data' => $reviews
         ];
@@ -96,7 +96,7 @@ class ReviewController extends Controller
             $review->score = $request->score;
             $review->description = $request->description;
             $review->save();
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'message' => 'Data successfully updated', 'data' => $review]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['success' => false], 404);
         }

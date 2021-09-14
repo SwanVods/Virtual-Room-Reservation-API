@@ -18,6 +18,8 @@ class CreateOrdersTable extends Migration
             $table->uuid('uuid');
             $table->foreignId('user_id')->constrained();
             $table->enum('status', ['pending', 'success', 'cancel']);
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
             $table->timestamps();
         });
     }

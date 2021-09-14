@@ -45,10 +45,10 @@ class ProductController extends Controller
      * 
      * @return response list of room attributes
      */
-    public function show(Request $req)
+    public function show(Request $req, $room)
     {
-        $data = Product::where('id', $req->room)
-                        ->orWhere('slug', $req->room)
+        $data = Product::where('id', $room)
+                        ->orWhere('slug', $room)
                         ->with('images')
                         ->with('reviews')
                         ->first();
@@ -135,10 +135,9 @@ class ProductController extends Controller
      * 
      * @return \Illuminate\Http\Response boolean
      */
-    public function update(Request $req)
+    public function update(Request $req, $room)
     {
         $validator = Validator::make($req->all(), [
-            'room' => ['required', 'integer'],
             'name' => ['required'], 
             'capacity' => ['required'], 
             'size' => ['required'], 
@@ -148,21 +147,20 @@ class ProductController extends Controller
         }
 
         try {
-            $product = Product::findOrFail($req->room);
-            $product->update([
-                'room' => $req->room,
-                'name' => $req->name,
-                'slug' => Str::slug($req->name),
-                'category_id' => $req->category_id,
-                'price' => $req->price,
-                'description' => $req->description,
-                'capacity' => $req->capacity,
-                'size' => $req->size,
-                'access_route' => $req->access_route,
-                'address' => $req->address,
-            ]);
-
+            $product = Product::findOrFail($room);
+            // dd($product);
+            $product->name = $req->name;
+            $product->slug = Str::slug($req->name);
+            $product->category_id = $req->category_id;
+            $product->price = $req->price;
+            $product->description = $req->description;
+            $product->capacity = $req->capacity;
+            $product->size = $req->size;
+            $product->access_route = $req->access_route;
+            $product->address = $req->address;
+            $product->save();
             $res = [
+                'success' => true,
                 'message' => 'Product update successful',
                 'data' => $product
             ];
@@ -187,26 +185,30 @@ class ProductController extends Controller
      * 
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $req)
+    public function destroy(Request $req, $room)
     {
         try {
-            $product = Product::where('id', $req->room)->first();
-            if ($product) {
-                throw new \Exception("Data with id " . $req->room . " not found", 1);
-                
+            $product = Product::find($room);
+
+            if (!$product) {
+                $res = [
+                    'success' => false,
+                    'message' => 'room with id '. $room . ' not found'
+                ];
+                return response()->json($res, 404);
             }
             $data = $product->delete();
             
             $res = [
-                'message' => 'success',
-                'data' => $data
+                'success' => $data,
+                'message' => 'room with id ' . $room . ' successfully deleted'
             ];
 
             return response()->json($res, Response::HTTP_OK);
 
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed ' . $e->errorInfo
+                'message' => 'Failed ' . $e->getMessage()
             ]);
         }
     }
